@@ -68,10 +68,10 @@ function App() {
         </div>
       ))}
       
-        <button onClick={()=>setReps([...reps,''])}>セット数追加</button>
+        <button onClick={()=>setReps([...reps,0])}>セット数追加</button>
       </div>
       <br />
-      <button type='button' onClick={handleRecords} disabled={!dateInput|!weightInput|!reps}>保存する</button>
+      <button type='button' onClick={handleRecords} disabled={!dateInput||!weightInput||!reps}>保存する</button>
 
       {records.filter(record=>record.selectedName===selectedMenu)
       .map(record=>(
