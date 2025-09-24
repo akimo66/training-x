@@ -1,20 +1,46 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import Menu from './component/Menu/Menu'
 import MenuOptions from './component/Menu/MenuOptions'
 
 function App() {
 
-  const today=new Date().toISOString().slice(0,10)
+  const today = new Date().toISOString().slice(0, 10)
 
   const [menuInput, setMenuInput] = useState('')
-  const [menus, setMenus] = useState([])
-  const [selectedMenu, setSelectedMenu] = useState('')
+
+  const [menus, setMenus] = useState(() => {
+    const saved = localStorage.getItem('menus')
+    return saved ? JSON.parse(saved) : []
+  })
+  const [selectedMenu, setSelectedMenu] = useState(() => {
+    const saved = localStorage.getItem('selectedMenu')
+    return saved || ''
+  })
   const [dateInput, setDateInput] = useState(today)
   const [weightInput, setWeightInput] = useState('')
 
-  const[records,setRecords]=useState([])
-  const[reps,setReps]=useState([])
+  const [records, setRecords] = useState(() => {
+    const saved = localStorage.getItem('records')
+    return saved ? JSON.parse(saved) : []
+  })
+  const [reps, setReps] = useState([])
+
+  //localStorageでデータを保存
+  useEffect(() => {
+    localStorage.setItem('records', JSON.stringify(records))
+  }, [records])
+
+  useEffect(() => {
+    localStorage.setItem('selectedMenu', selectedMenu)
+  }, [selectedMenu])
+
+  useEffect(() => {
+    localStorage.setItem('menus', JSON.stringify(menus))
+  }, [menus])
+
+
+
 
   const addMenu = () => {
     if (menuInput === '') return
@@ -22,22 +48,20 @@ function App() {
     setMenuInput('')
   }
 
-  const handleRecords=()=>{
-    const newRecord={
-      id:Date.now(),
-      selectedName:selectedMenu,
-      date:dateInput,
-      weight:weightInput,
-      reps:reps
+  const handleRecords = () => {
+    const newRecord = {
+      id: Date.now(),
+      selectedName: selectedMenu,
+      date: dateInput,
+      weight: weightInput,
+      reps: reps
     }
-    setRecords([...records,newRecord])
+    setRecords([...records, newRecord])
   }
 
-  const handleDelete=(id)=>{
-    setRecords(records.filter(record=>id!==record.id))
+  const handleDelete = (id) => {
+    setRecords(records.filter(record => id !== record.id))
   }
-
-  
 
 
 
@@ -54,34 +78,34 @@ function App() {
       <div>
         <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)} /><br />
         <input type="number" placeholder='重量' value={weightInput} onChange={e => setWeightInput(e.target.value)} /><br />
-        {reps.map((rep,index)=>(
+        {reps.map((rep, index) => (
           <div key={index}>
-        <input 
-        type="number" 
-        placeholder='回数' 
-        value={rep}
-        onChange={e => {
-          const newReps=[...reps]
-          newReps[index]=Number(e.target.value)
-          setReps(newReps)
-        }} />
-        </div>
-      ))}
-      
-        <button onClick={()=>setReps([...reps,0])}>セット数追加</button>
+            <input
+              type="number"
+              placeholder='回数'
+              value={rep}
+              onChange={e => {
+                const newReps = [...reps]
+                newReps[index] = Number(e.target.value)
+                setReps(newReps)
+              }} />
+          </div>
+        ))}
+
+        <button onClick={() => setReps([...reps, 0])}>セット数追加</button>
       </div>
       <br />
-      <button type='button' onClick={handleRecords} disabled={!dateInput||!weightInput||!reps}>保存する</button>
+      <button type='button' onClick={handleRecords} disabled={!dateInput || !weightInput || !reps}>保存する</button>
 
-      {records.filter(record=>record.selectedName===selectedMenu)
-      .map(record=>(
-      <div key={record.id}>
-      <span>
-        {`${record.selectedName} ${record.date} 重量${record.weight}kg ${record.reps.join('回')}回`}
-      </span>
-      <button onClick={()=>handleDelete(record.id)}>削除</button>
-      </div>
-      ))}
+      {records.filter(record => record.selectedName === selectedMenu)
+        .map(record => (
+          <div key={record.id}>
+            <span>
+              {`${record.selectedName} ${record.date} 重量${record.weight}kg ${record.reps.join('回')}回`}
+            </span>
+            <button onClick={() => handleDelete(record.id)}>削除</button>
+          </div>
+        ))}
     </>
   )
 }
